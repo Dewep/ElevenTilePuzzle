@@ -1,6 +1,4 @@
 import java.util.LinkedList;
-import java.util.PriorityQueue;
-import java.util.Comparator;
 
 /**
  * Author: MAIGRET Aurelien (am2074)
@@ -13,8 +11,19 @@ public class Solver {
         String dest = "*ad**abd*b_cbddd";
 
         LinkedList<String> path = uniformCost(start, dest);
-        for (String move:path) {
-            System.out.println(move);
+
+        for (int i = 0; i <= 12; i += 4) {
+            String line = "";
+
+            for (String move:path) {
+                if (line.length() > 0) {
+                    line += " ";
+                }
+
+                line += move.substring(i, i + 4);
+            }
+
+            System.out.println(line);
         }
 
         System.exit(0);
@@ -22,7 +31,7 @@ public class Solver {
 
     /* Uniform Cost Algorithm */
     public static LinkedList<String> uniformCost(String start, String dest) {
-        PriorityQueue<LinkedList<String>> queue = new PriorityQueue<LinkedList<String>>(11, new LinkedListStringComparator());
+        LinkedList<LinkedList<String>> queue = new LinkedList<LinkedList<String>>();
 
         LinkedList<String> path = new LinkedList<String>();
         path.add(start);
@@ -35,16 +44,16 @@ public class Solver {
                 return null;
             }
 
-            String last = path.getLast();
-            if (last.equals(dest)) {
-                return path;
-            }
-
-            LinkedList<String> moves = nextMoves(last);
+            LinkedList<String> moves = nextMoves(path.getLast());
             for (String move:moves) {
                 if (!path.contains(move)) {
                     LinkedList<String> newPath = new LinkedList<String>(path);
                     newPath.addLast(move);
+
+                    if (move.equals(dest)) {
+                        return newPath;
+                    }
+
                     queue.add(newPath);
                 }
             }
@@ -54,7 +63,6 @@ public class Solver {
     /* Find next moves of a given tile */
     public static LinkedList<String> nextMoves(String tile) {
         LinkedList<String> moves = new LinkedList<>();
-
         int space = tile.indexOf("_");
 
         // UP
@@ -75,14 +83,6 @@ public class Solver {
         }
 
         return moves;
-    }
-
-    /* Comparator of LinkedList<String> */
-    public static class LinkedListStringComparator implements Comparator<LinkedList<String>> {
-        @Override
-        public int compare(LinkedList<String> list1, LinkedList<String> list2) {
-            return list1.size() - list2.size();
-        }
     }
 
     /* Swap 2 letters in a String */
