@@ -2,9 +2,9 @@ import java.util.LinkedList;
 import java.io.PrintWriter;
 import java.io.IOException;
 
-// Author: MAIGRET Aurelien (am2074)
+/* Author: MAIGRET Aurelien (am2074) */
 public class Solver {
-    /* Main */
+    /* Main method, which calls the solver for each puzzle */
     public static void main(String[] args) throws IOException {
         String[] files = {
             "*ad**b_c*addbdbd2*ad**abd*b_cbddd.txt",
@@ -25,48 +25,45 @@ public class Solver {
             "*dd**abd*dcabd_b2*da**d_b*cadbddb.txt"
         };
         for (String file:files) {
-            String start = file.substring(0, 16);
-            String dest = file.substring(17, 33);
+            String start = file.substring(0, 16); // Start of the puzzle
+            String dest = file.substring(17, 33); // End of the puzzle
             solvePuzzle(file, start, dest);
         }
         System.exit(0);
     }
-    /* Solve function */
+    /* Solver method */
     public static void solvePuzzle(String file, String start, String dest) throws IOException {
-        PrintWriter writer = new PrintWriter("solutions/" + file.replace('*', '%'));
-        LinkedList<String> path = uniformCost(start, dest);
-        for (int i = 0; i <= 12; i += 4) {
-            String line = "";
+        PrintWriter writer = new PrintWriter(file.replace('*', '+')); // I'm a Window user
+        LinkedList<String> path = uniformCost(start, dest); // Call the uniform cost algorithm to find the best solution
+        for (int i = 0; i <= 12; i += 4) { // Write the solution into the file
             for (String move:path) {
-                if (line.length() > 0) {
-                    line += " ";
-                }
-                line += move.substring(i, i + 4);
+                writer.write(move.substring(i, i + 4));
+                writer.write(" ");
             }
-            writer.write(line + "\n");
+            writer.write("\n");
         }
         writer.close();
     }
     /* Uniform Cost Algorithm */
     public static LinkedList<String> uniformCost(String start, String dest) {
-        LinkedList<LinkedList<String>> queue = new LinkedList<LinkedList<String>>();
-        LinkedList<String> path = new LinkedList<String>();
+        LinkedList<LinkedList<String>> queue = new LinkedList<LinkedList<String>>(); // Creation of a queue
+        LinkedList<String> path = new LinkedList<String>(); // Each element in the queue will be a possible solution (= a list of paths)
         path.add(start);
         queue.add(path);
         while (true) {
-            path = queue.poll();
-            if (path == null) {
+            path = queue.poll(); // Retrieves and removes the head of the queue
+            if (path == null) { // If the head is null, the queue is empty (= no solution)
                 return null;
             }
-            LinkedList<String> moves = nextMoves(path.getLast());
+            LinkedList<String> moves = nextMoves(path.getLast()); // Retrieves all the next possible moves
             for (String move:moves) {
-                if (!path.contains(move)) {
-                    LinkedList<String> newPath = new LinkedList<String>(path);
-                    newPath.addLast(move);
-                    if (move.equals(dest)) {
+                if (!path.contains(move)) { // If this solution had not already used
+                    LinkedList<String> newPath = new LinkedList<String>(path); // Copy of the current path
+                    newPath.addLast(move); // Add the current move
+                    if (move.equals(dest)) { // If the move is the destination, this is the best solution
                         return newPath;
                     }
-                    queue.add(newPath);
+                    queue.add(newPath); // Else, insert the this new solution in the queue
                 }
             }
         }
@@ -74,7 +71,7 @@ public class Solver {
     /* Find next moves of a given tile */
     public static LinkedList<String> nextMoves(String tile) {
         LinkedList<String> moves = new LinkedList<>();
-        int space = tile.indexOf("_");
+        int space = tile.indexOf("_"); // Current position
         if (space >= 4 && tile.charAt(space - 4) != '*') { // UP
             moves.add(swap(tile, space, space - 4));
         }
@@ -89,7 +86,7 @@ public class Solver {
         }
         return moves;
     }
-    /* Swap 2 letters in a String */
+    /* Swap 2 characters in a String */
     public static String swap(String str, int index1, int index2) {
         StringBuilder sb = new StringBuilder(str);
         char tmp = sb.charAt(index1);
